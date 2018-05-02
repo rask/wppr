@@ -21,6 +21,7 @@ after_success: |
     echo "Checking code coverage ..."
     bash ./coverage.sh install --yes --local
     bash ./coverage.sh run --local
-    bash <(curl -s https://codecov.io/bash) -s ./target/cov
+    cat ./target/cov/merged/kcov-merged/coverage.json
+    bash <(curl -s https://codecov.io/bash)
     echo "Code coverage uploaded"
   fi
