@@ -1,5 +1,8 @@
 language: rust
-sudo: false
+cache: cargo
+sudo: enable
+git:
+  depth: 5
 rust:
   - stable
   - beta
@@ -8,3 +11,16 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+before_script:
+  - ( cargo install rustfmt --force || true )
+  - export PATH=$PATH:~/.cargo/bin
+script:
+  - cargo fmt -- --write-mode=diff
+  - cargo build
+  - RUSTFLAGS='-C link-dead-code' cargo test
+after_success:
+  - echo "Checking code coverage ..."
+  - bash ./coverage.sh install --yes
+  - bash ./coverage.sh run
+  - bash <(curl -s https://codecov.io/bash)
+  - echo "Code coverage uploaded"

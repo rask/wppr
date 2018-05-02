@@ -30,12 +30,15 @@
 #
 #     $ ./coverage.sh install
 #
-# This requires sudo rights.
+# This requires sudo rights. Pass in `--yes` to skip confirmation.
 #
 # Thanks Razican at https://medium.com/@Razican/continuous-integration-and-code-coverage-report-for-a-rust-project-5dfd4d68fbe5
 # for the reference on how to use kcov with Rust projects.
 
+set -e
+
 CMD=$1
+SAYYES=$2
 
 # If we want to install kcov
 if [[ "$CMD" == "install" ]]; then
@@ -51,17 +54,25 @@ if [[ "$CMD" == "install" ]]; then
     echo "This script is intended for debian-like distros"
     echo "This script will attempt to install the following dependencies:"
     echo "    libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev"
-    echo "Are you sure you want to proceed? [y/n]"
-    read agree
 
-    if [[ "$agree" -ne "y" ]]; then
-        echo "Cancelled"
-        exit 1
+    # if we dont force then ask for confirmation
+    if [[ "$SAYYES" != "--yes" ]]; then
+        echo "Are you sure you want to proceed? [y/n]"
+        read agree
+
+        if [[ "$agree" != "y" ]]; then
+            echo "Cancelled"
+            exit 1
+        fi
+    else
+        echo "Installation requested with skip confirmation"
     fi
 
+    echo "Installing dependencies ..."
     sudo apt-get -yqq update
     sudo apt-get -yqq install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev
-    curl -O --location --progress-bar https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+    echo "Downloading kcov source ..."
+    curl -O --location --silent https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
     tar xzf master.tar.gz
     cd kcov-master
     mkdir build
