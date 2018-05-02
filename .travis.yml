@@ -15,7 +15,7 @@ before_script:
   - rustup component add rustfmt-preview
   - export PATH=$PATH:~/.cargo/bin
 script:
-  - cargo fmt -- --write-mode=diff
+  - cargo fmt -- --write-mode=diff --force
   - cargo build
   - RUSTFLAGS='-C link-dead-code' cargo test
 after_success:
