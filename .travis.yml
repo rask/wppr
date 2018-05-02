@@ -12,7 +12,7 @@ matrix:
     - rust: nightly
   fast_finish: true
 before_script:
-  - ( cargo install rustfmt --force || true )
+  - rustup component add rustfmt-preview
   - export PATH=$PATH:~/.cargo/bin
 script:
   - cargo fmt -- --write-mode=diff
