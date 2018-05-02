@@ -12,16 +12,19 @@ matrix:
     - rust: nightly
   fast_finish: true
 before_script:
-  - rustup component add rustfmt-preview
+  - rustup toolchain install nightly
+  - rustup component add --toolchain nightly rustfmt-preview
+  - which rustfmt || cargo install --force rustfmt-nightly
   - export PATH=$PATH:~/.cargo/bin
-  - cargo fmt -- --version
 script:
-  - cargo fmt -- --write-mode=diff --force
+  - cargo +nightly fmt --all -- --write-mode=diff
   - cargo build
   - RUSTFLAGS='-C link-dead-code' cargo test
-after_success:
-  - echo "Checking code coverage ..."
-  - bash ./coverage.sh install --yes
-  - bash ./coverage.sh run
-  - bash <(curl -s https://codecov.io/bash)
-  - echo "Code coverage uploaded"
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
+    echo "Checking code coverage ..."
+    bash ./coverage.sh install --yes
+    bash ./coverage.sh run
+    bash <(curl -s https://codecov.io/bash)
+    echo "Code coverage uploaded"
+  fi
