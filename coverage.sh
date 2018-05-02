@@ -23,30 +23,39 @@
 #     $ ./coverage.sh run
 #
 # And results should appear inside ./target/cov/ which includes kcov
-# formats, such as cobertura compatible files.
+# formats, such as cobertura compatible files. Add `--local` to run with a local
+# kcov bin.
 #
 # You can also install kcov on a debian-like system somewhat automatically by
 # using
 #
 #     $ ./coverage.sh install
 #
-# This requires sudo rights. Pass in `--yes` to skip confirmation.
+# This requires sudo rights. Pass in `--yes` to skip confirmation. Add `--local`
+# to install into the project directory.
 #
 # Thanks Razican at https://medium.com/@Razican/continuous-integration-and-code-coverage-report-for-a-rust-project-5dfd4d68fbe5
 # for the reference on how to use kcov with Rust projects.
 
-set -e
-
 CMD=$1
 SAYYES=$2
+LOCAL=$3
+
+echo $CMD $SAYYES $LOCAL
 
 # If we want to install kcov
-if [[ "$CMD" == "install" ]]; then
+if [ "$CMD" = "install" ]; then
     echo "Installing kcov and dependencies"
 
-    is_installed=$(which kcov)
+    if [ "$LOCAL" = "--local" ]; then
+        is_installed=$(which ./kcov-build/usr/local/bin/kcov)
+    else
+        is_installed=$(which kcov)
+    fi
 
-    if [[ "$is_installed" != "" ]]; then
+    if [ "$is_installed" = "" ]; then
+        echo 
+    else
         echo "kcov is already installed at $is_installed"
         exit 0
     fi
@@ -56,21 +65,23 @@ if [[ "$CMD" == "install" ]]; then
     echo "    libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev"
 
     # if we dont force then ask for confirmation
-    if [[ "$SAYYES" != "--yes" ]]; then
+    if [ "$SAYYES" = "--yes" ]; then
+        echo "Installation requested with skip confirmation"
+    else
         echo "Are you sure you want to proceed? [y/n]"
         read agree
 
-        if [[ "$agree" != "y" ]]; then
+        if [ "$agree" = "y" ]; then
+            echo
+        else
             echo "Cancelled"
             exit 1
         fi
-    else
-        echo "Installation requested with skip confirmation"
     fi
 
     echo "Installing dependencies ..."
     sudo apt-get -yqq update
-    sudo apt-get -yqq install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev
+    sudo apt-get -yq install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev
     echo "Downloading kcov source ..."
     curl -O --location --silent https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
     tar xzf master.tar.gz
@@ -79,12 +90,24 @@ if [[ "$CMD" == "install" ]]; then
     cd build
     cmake ..
     make
-    sudo make install
+
+    if [ "$LOCAL" = "--local" ]; then
+        make install DESTDIR=../../kcov-build
+    else
+        sudo make install
+    fi
+
     cd ../..
     rm -rf kcov-master
 
     exit 0
-elif [[ "$CMD" == "run" ]]; then
+elif [ "$CMD" = "run" ]; then
+    if [ "$SAYYES" = "--local" ]; then
+        kcovbin="./kcov-build/usr/local/bin/kcov"
+    else
+        kcovbin=$(which kcov)
+    fi
+
     # first we clean up
     rm -rf ./target/cov
 
@@ -100,7 +123,7 @@ elif [[ "$CMD" == "run" ]]; then
         for file in ./target/debug/wppr-*[^\.d]; do
             fbasename=$(basename $file)
             mkdir -p ./target/cov/$fbasename
-            kcov --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
+            $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
             combined_src="$combined_src ./target/cov/$fbasename"
         done
 
@@ -108,12 +131,12 @@ elif [[ "$CMD" == "run" ]]; then
         for file in ./target/debug/wordpress_test-*[^\.d]; do
             fbasename=$(basename $file)
             mkdir -p ./target/cov/$fbasename
-            kcov --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
+            $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
             combined_src="$combined_src ./target/cov/$fbasename"
         done
 
         # merge tests
-        kcov --merge ./target/cov/merged $combined_src
+        $kcovbin --merge ./target/cov/merged $combined_src
 
         # remove intermediates
         rm -rf $combined_src
@@ -121,10 +144,10 @@ elif [[ "$CMD" == "run" ]]; then
 else
     echo "Usage:"
     echo
-    echo "    ./coverage.sh run"
+    echo "    ./coverage.sh run [--local]"
     echo "    To generate coverage data"
     echo 
-    echo "    ./coverage.sh install [system]"
+    echo "    ./coverage.sh install [--yes] [--local]"
     echo "    To install kcov on a debian-like system (requires sudo)"
 
     exit 1

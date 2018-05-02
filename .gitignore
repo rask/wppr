@@ -1,5 +1,6 @@
-
 /target
 **/*.rs.bk
 *.gz
 *.gz.*
+/kcov-build
+/kcov-master

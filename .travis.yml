@@ -19,8 +19,8 @@ script:
 after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
     echo "Checking code coverage ..."
-    bash ./coverage.sh install --yes
-    bash ./coverage.sh run
-    bash <(curl -s https://codecov.io/bash)
+    bash ./coverage.sh install --yes --local
+    bash ./coverage.sh run --local
+    bash <(curl -s https://codecov.io/bash) -s ./target/cov
     echo "Code coverage uploaded"
   fi
