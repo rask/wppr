@@ -14,6 +14,7 @@ matrix:
 before_script:
   - rustup component add rustfmt-preview
   - export PATH=$PATH:~/.cargo/bin
+  - cargo fmt -- --version
 script:
   - cargo fmt -- --write-mode=diff --force
   - cargo build
