@@ -12,12 +12,8 @@ matrix:
     - rust: nightly
   fast_finish: true
 before_script:
-  - rustup toolchain install nightly
-  - rustup component add --toolchain nightly rustfmt-preview
-  - which rustfmt || cargo install --force rustfmt-nightly
   - export PATH=$PATH:~/.cargo/bin
 script:
-  - cargo +nightly fmt --all -- --write-mode=diff
   - cargo build
   - RUSTFLAGS='-C link-dead-code' cargo test
 after_success: |
