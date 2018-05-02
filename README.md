@@ -2,6 +2,9 @@
 
 > WordPress Plugin Repofier
 
+[![Build Status](https://travis-ci.org/rask/wppr.svg?branch=master)](https://travis-ci.org/rask/wppr) [![codecov](https://codecov.io/gh/rask/wppr/branch/master/graph/badge.svg)](https://codecov.io/gh/rask/wppr)
+
+
 **Currently unstable and in development, please proceed with caution if you plan
 to use this in production. This README states a future state on some parts so
 following this README further than the _Installation_ steps may or may not
