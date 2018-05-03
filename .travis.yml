@@ -12,7 +12,17 @@ matrix:
     - rust: nightly
   fast_finish: true
 before_script:
+  - sudo apt-get update -yqq
   - export PATH=$PATH:~/.cargo/bin
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - cmake
+      - gcc
+      - binutils-dev
 script:
   - cargo build
   - RUSTFLAGS='-C link-dead-code' cargo test
