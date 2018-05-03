@@ -337,10 +337,6 @@ To generate a coverage report you need to follow these steps:
     addition ensures we get 0% reporting for code which was not run at all)
 3.  Generate coverage reports with `./coverage.sh run`
 
-If a directory named `./target/cov/merged` does not appear please run
-`./coverage.sh run` again. It seemd kcov and Rust don't play 100% together so
-it may take some persuading to run properly.
-
 All code inside `./src` (apart from `main.rs`) is coverage reported. You can see
 a neat HTML file for your report by opening the `./target/cov/merged/index.html`
 file in a browser.

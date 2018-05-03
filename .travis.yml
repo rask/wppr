@@ -20,8 +20,7 @@ after_success: |
   if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then
     echo "Checking code coverage ..."
     bash ./coverage.sh install --yes --local
-    bash ./coverage.sh run --local
-    cat ./target/cov/merged/kcov-merged/coverage.json
+    bash ./coverage.sh run --local --no-merge
     bash <(curl -s https://codecov.io/bash)
     echo "Code coverage uploaded"
   fi

@@ -111,40 +111,37 @@ elif [ "$CMD" = "run" ]; then
     # first we clean up
     rm -rf ./target/cov
 
-    # sometimes kcov does not seem to generate all reports properly, need to
-    # investigate if this is because kcov, rust, or our code does something
-    # wrong
-    #
-    # hence we do it until a merged dir is available
-    while [[ ! -d "./target/cov/merged" ]]; do
-        combined_src=""
+    combined_src=""
 
-        # wppr bins
-        for file in ./target/debug/wppr-*[^\.d]; do
-            fbasename=$(basename $file)
-            mkdir -p ./target/cov/$fbasename
-            $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
-            combined_src="$combined_src ./target/cov/$fbasename"
-        done
+    # wppr bins
+    for file in ./target/debug/wppr-*[^\.d]; do
+        fbasename=$(basename $file)
+        mkdir -p ./target/cov/$fbasename
+        $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
+        combined_src="$combined_src ./target/cov/$fbasename"
+    done
 
-        # wordpress_test bins
-        for file in ./target/debug/wordpress_test-*[^\.d]; do
-            fbasename=$(basename $file)
-            mkdir -p ./target/cov/$fbasename
-            $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
-            combined_src="$combined_src ./target/cov/$fbasename"
-        done
+    # wordpress_test bins
+    for file in ./target/debug/wordpress_test-*[^\.d]; do
+        fbasename=$(basename $file)
+        mkdir -p ./target/cov/$fbasename
+        $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
+        combined_src="$combined_src ./target/cov/$fbasename"
+    done
 
+    if [ "$LOCAL" = "--no-merge" ]; then
+        echo
+    else
         # merge tests
         $kcovbin --merge ./target/cov/merged $combined_src
 
         # remove intermediates
         rm -rf $combined_src
-    done
+    fi
 else
     echo "Usage:"
     echo
-    echo "    ./coverage.sh run [--local]"
+    echo "    ./coverage.sh run [--local] [--no-merge]"
     echo "    To generate coverage data"
     echo 
     echo "    ./coverage.sh install [--yes] [--local]"
