@@ -62,7 +62,7 @@ if [ "$CMD" = "install" ]; then
 
     echo "This script is intended for debian-like distros"
     echo "This script will attempt to install the following dependencies:"
-    echo "    libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libbfd-dev"
+    echo "    libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-2.26-dev"
 
     # if we dont force then ask for confirmation
     if [ "$SAYYES" = "--yes" ]; then
@@ -81,7 +81,7 @@ if [ "$CMD" = "install" ]; then
 
     echo "Installing dependencies ..."
     sudo apt-get -yqq update
-    sudo apt-get -yq install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libbfd-dev
+    sudo apt-get -y install libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-2.26-dev
     echo "Downloading kcov source ..."
     curl -O --location --silent https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
     tar xzf master.tar.gz
