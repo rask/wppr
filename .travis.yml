@@ -23,6 +23,8 @@ addons:
       - cmake
       - gcc
       - binutils-dev
+      - zlib1g-dev
+      - libiberty-dev
 script:
   - cargo build
   - RUSTFLAGS='-C link-dead-code' cargo test
