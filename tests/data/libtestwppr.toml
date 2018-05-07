@@ -1,0 +1,13 @@
+[binaries]
+git = "/bin/true"
+wpcli = "/bin/true"
+
+[git]
+user_name = "test person"
+user_email = "testperson@example.com"
+force_push = false
+
+[[plugins]]
+index_path = "plugins/test-plugin/plugin.php"
+remote_repository = "./this/does/not/exist.git"
+package_name = "testplugin1"

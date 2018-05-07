@@ -341,6 +341,17 @@ All code inside `./src` (apart from `main.rs`) is coverage reported. You can see
 a neat HTML file for your report by opening the `./target/cov/merged/index.html`
 file in a browser.
 
+To ignore regions of code from being attempted to be covered you can use the
+following
+
+    //LCOV_EXCL_START
+    ... code to exclude from coverage here ...
+    //LCOV_EXCL_END
+
+To mark a single line to not be considered for coverage you can use
+
+    let something = something(); //LCOV_EXCL_LINE
+
 **NOTE**: doc-tests cannot be covered with kcov at this time. We need to rely
 on the hope that doc-tests actually test the code properly.
 

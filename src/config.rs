@@ -4,6 +4,7 @@
 
 use std::process::{Command, Stdio};
 
+//LCOV_EXCL_START
 /// Struct to hold deserialized TOML configuration.
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -13,20 +14,6 @@ pub struct Config {
     pub verbose: Option<bool>,
     pub dry_run: Option<bool>,
     pub cwd: Option<String>,
-}
-
-impl Config {
-    pub fn set_verbosity(&mut self, verbosity: bool) {
-        self.verbose = Some(verbosity);
-    }
-
-    pub fn set_dry_run(&mut self, dry_run: bool) {
-        self.dry_run = Some(dry_run);
-    }
-
-    pub fn set_cwd(&mut self, cwd: String) {
-        self.cwd = Some(cwd);
-    }
 }
 
 /// Configuration of binaries used when running the tool.
@@ -50,6 +37,21 @@ pub struct PluginConfig {
     pub index_path: String,
     pub package_name: String,
     pub remote_repository: String,
+}
+//LCOV_EXCL_STOP
+
+impl Config {
+    pub fn set_verbosity(&mut self, verbosity: bool) {
+        self.verbose = Some(verbosity);
+    }
+
+    pub fn set_dry_run(&mut self, dry_run: bool) {
+        self.dry_run = Some(dry_run);
+    }
+
+    pub fn set_cwd(&mut self, cwd: String) {
+        self.cwd = Some(cwd);
+    }
 }
 
 /// Validate configuration for the tool.

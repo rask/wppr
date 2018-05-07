@@ -129,6 +129,19 @@ elif [ "$CMD" = "run" ]; then
         combined_src="$combined_src ./target/cov/$fbasename"
     done
 
+    # lib_test bins
+    for file in ./target/debug/lib_test-*[^\.d]; do
+        fbasename=$(basename $file)
+        mkdir -p ./target/cov/$fbasename
+        $kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/$fbasename" "$file"
+        combined_src="$combined_src ./target/cov/$fbasename"
+    done
+
+    # main bin
+    #mkdir -p ./target/cov/wppr
+    #$kcovbin --exclude-pattern=/.cargo,/usr/lib,tests/,main.rs --include-pattern=src/ --verify "./target/cov/wppr" "./target/debug/wppr" --configuration ./tests/data/libtestwppr.toml list
+    #combined_src="$combined_src ./target/cov/wppr"
+
     if [ "$LOCAL" = "--no-merge" ]; then
         echo
     else
