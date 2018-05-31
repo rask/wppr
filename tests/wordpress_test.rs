@@ -1,14 +1,17 @@
 extern crate wppr;
 
 use std::env;
-use wppr::wordpress::{get_plugin_version, Plugin, PluginFromConfig};
 use wppr::config;
+use wppr::wordpress::{get_plugin_version, Plugin, PluginFromConfig};
 
-#[path="./testfns.rs"]
+#[path = "./testfns.rs"]
 mod testfns;
 
 fn get_test_plugin_index() -> String {
-    testfns::get_tests_dir("data/plugins/test-plugin/plugin.php").to_str().unwrap().to_string()
+    testfns::get_tests_dir("data/plugins/test-plugin/plugin.php")
+        .to_str()
+        .unwrap()
+        .to_string()
 }
 
 #[test]

@@ -4,7 +4,7 @@ extern crate wppr;
 use std::env;
 use std::path::PathBuf;
 
-#[path="./testfns.rs"]
+#[path = "./testfns.rs"]
 mod testfns;
 
 #[test]
@@ -30,9 +30,7 @@ fn test_app_config_works() {
         .contains("0.1.2")
         .unwrap();
 
-    assert_cli::Assert::command(&[bin, "list"])
-        .fails()
-        .unwrap();
+    assert_cli::Assert::command(&[bin, "list"]).fails().unwrap();
 
     assert_cli::Assert::command(&[bin, "--configuration", "./relative/path.toml", "list"])
         .fails()

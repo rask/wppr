@@ -3,11 +3,12 @@
 //! This module contains WordPress specific functionalities.
 
 use config::PluginConfig;
+use regex::Regex;
 use std::fs::File;
 use std::io::Read;
-use regex::Regex;
 
 /// Representation of a WP plugin.
+#[derive(Debug)]
 pub struct Plugin {
     pub index_path: String,
     pub package_name: String,

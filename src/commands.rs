@@ -3,26 +3,40 @@
 //! All command implementations.
 
 use config::Config;
-use wordpress::{Plugin, PluginFromConfig};
+use pipeline::get_pipeline_for_plugin;
 use prettytable::Table;
+use wordpress::{Plugin, PluginFromConfig};
+
+/// Get all plugins which are being managed.
+pub fn get_managed_plugins(config: Config) -> Vec<Plugin> {
+    let mut plugins: Vec<Plugin> = Vec::new();
+    let cwd = config.cwd.unwrap();
+
+    let plugins_being_managed: Vec<_> = match config.plugins {
+        Some(p) => p,
+        None => Vec::new(),
+    };
+
+    if plugins_being_managed.len() < 1 {
+        return Vec::new();
+    }
+
+    for plugin_cfg in plugins_being_managed {
+        plugins.push(Plugin::from_config(plugin_cfg, &cwd));
+    }
+
+    plugins
+}
 
 /// Lists managed WordPress plugins.
 pub fn list(config: Config) -> Result<bool, &'static str> {
     println!("Listing managed plugins");
 
-    let mut plugins: Vec<Plugin> = Vec::new();
-    let cwd = config.cwd.unwrap();
+    let plugins: Vec<Plugin> = get_managed_plugins(config);
 
-    let plugins_being_managed = match config.plugins {
-        Some(p) => p,
-        None => {
-            println!("Configuration has no plugins defined");
-            return Ok(true);
-        }
-    };
-
-    for plugin_cfg in plugins_being_managed {
-        plugins.push(Plugin::from_config(plugin_cfg, &cwd));
+    if plugins.len() < 1 {
+        println!("Configuration has no plugins defined");
+        return Ok(true);
     }
 
     let mut plugin_table = Table::new();
@@ -51,5 +65,48 @@ pub fn list(config: Config) -> Result<bool, &'static str> {
 
 /// Runs upgrades and gitifications on managed WordPress plugins.
 pub fn run(config: Config) -> Result<bool, &'static str> {
-    Err("Not implemented")
+    let plugins: Vec<Plugin> = get_managed_plugins(config);
+    let successes: Vec<bool> = Vec::new();
+    let failures: Vec<&'static str> = Vec::new();
+
+    if plugins.len() < 1 {
+        println!("Configuration has no plugins defined");
+        return Ok(true);
+    }
+
+    let mut plugin_table = Table::new();
+
+    plugin_table.add_row(row!["Plugin", "Result", "Notes"]);
+
+    for plugin in plugins {
+        let valid = plugin.is_valid();
+        let p_nicename = plugin.nicename.clone().unwrap_or("invalid".to_string());
+
+        if !valid {
+            plugin_table.add_row(row![
+                &p_nicename,
+                "false",
+                "Plugin invalid, cannot run upgrades"
+            ]);
+
+            continue;
+        }
+
+        let pipeline = get_pipeline_for_plugin(plugin);
+
+        let result = pipeline.run();
+
+        match result {
+            Ok(_) => {
+                plugin_table.add_row(row![&p_nicename, "true", ""]);
+            }
+            Err(e) => {
+                plugin_table.add_row(row![&p_nicename, "false", e]);
+            }
+        };
+    }
+
+    plugin_table.printstd();
+
+    Ok(true)
 }

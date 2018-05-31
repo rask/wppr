@@ -1,12 +1,8 @@
 //! testfns.rs
-//! 
+//!
 //! Test functions, helpers, and utils.
 
-use std::{
-    fs,
-    env,
-    path::PathBuf
-};
+use std::{env, fs, path::PathBuf};
 
 /// Get the working directory where tests have been run from.
 pub fn get_cwd() -> PathBuf {
@@ -16,7 +12,7 @@ pub fn get_cwd() -> PathBuf {
 /// Get the directory that contains tests.
 pub fn get_tests_dir(path: &'static str) -> PathBuf {
     let mut testspath: PathBuf = get_cwd();
-    
+
     testspath.push("tests");
     testspath.push(path);
 

@@ -30,10 +30,11 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-pub mod wordpress;
-mod git;
+pub mod commands;
 pub mod config;
-mod commands;
+mod git;
+pub mod pipeline;
+pub mod wordpress;
 
 use config::{validate_configuration, Config};
 
