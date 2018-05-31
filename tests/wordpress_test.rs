@@ -4,16 +4,11 @@ use std::env;
 use wppr::wordpress::{get_plugin_version, Plugin, PluginFromConfig};
 use wppr::config;
 
-fn get_cwd() -> String {
-    env::current_dir().unwrap().to_str().unwrap().to_string()
-}
+#[path="./testfns.rs"]
+mod testfns;
 
 fn get_test_plugin_index() -> String {
-    let cwd: String = get_cwd();
-
-    let index_path = cwd + "/tests/data/plugins/test-plugin/plugin.php";
-
-    index_path
+    testfns::get_tests_dir("data/plugins/test-plugin/plugin.php").to_str().unwrap().to_string()
 }
 
 #[test]

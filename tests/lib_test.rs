@@ -2,15 +2,19 @@ extern crate assert_cli;
 extern crate wppr;
 
 use std::env;
+use std::path::PathBuf;
 
-fn get_cwd() -> String {
-    env::current_dir().unwrap().to_str().unwrap().to_string()
-}
+#[path="./testfns.rs"]
+mod testfns;
 
 #[test]
 fn test_app_config_works() {
-    let cfg_file: &str = &format!("{}/tests/data/libtestwppr.toml", get_cwd());
-    let bin: &str = &format!("{}/target/debug/wppr", get_cwd());
+    let cfg_file: PathBuf = testfns::get_tests_dir("data/libtestwppr.toml");
+    let mut binpath: PathBuf = testfns::get_cwd();
+
+    binpath.push("target/debug/wppr");
+
+    let bin = binpath.to_str().unwrap();
 
     assert_cli::Assert::command(&[bin, "help"])
         .succeeds()
@@ -18,7 +22,7 @@ fn test_app_config_works() {
         .contains("list")
         .unwrap();
 
-    assert_cli::Assert::command(&[bin, "--configuration", cfg_file, "list"])
+    assert_cli::Assert::command(&[bin, "--configuration", cfg_file.to_str().unwrap(), "list"])
         .succeeds()
         .stdout()
         .contains("plugin.php")
