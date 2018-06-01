@@ -2,7 +2,10 @@
 //!
 //! Configuration related functionalities.
 
-use std::path::PathBuf;
+use toml;
+use std::path::{Path, PathBuf};
+use std::io::Read;
+use std::fs::File;
 use std::process::{Command, Stdio};
 
 //LCOV_EXCL_START
@@ -52,6 +55,39 @@ impl TomlConfig {
 
     pub fn set_cwd(&mut self, cwd: String) {
         self.cwd = Some(cwd);
+    }
+
+    pub fn load_from_file(file: PathBuf) -> Result<TomlConfig, &'static str> {
+        if !file.is_absolute() {
+            return Err("Configuration file must be given as an absolute path");
+        }
+
+        if !file.exists() {
+            return Err("Invalid configuration, please validate the configuration file exists");
+        }
+
+        let config_cwd: &str = match file.parent().unwrap().to_str() {
+            Some(s) => s,
+            None => {
+                return Err(
+                    "Invalid configuration location given, please validate your config is in an \
+                     accessable location",
+                );
+            }
+        };
+
+        let mut cfg_data: String = String::new();
+
+        File::open(file.to_str().unwrap())
+            .unwrap()
+            .read_to_string(&mut cfg_data)
+            .unwrap();
+
+        let mut toml_configuration: TomlConfig = toml::from_str(&cfg_data).unwrap();
+
+        toml_configuration.set_cwd(config_cwd.to_string());
+
+        Ok(toml_configuration)
     }
 }
 
@@ -104,7 +140,7 @@ impl RuntimeConfig {
             plugins: toml_config.plugins.unwrap_or(Vec::new()),
             verbose: toml_config.verbose.unwrap_or(false),
             dry_run: toml_config.dry_run.unwrap_or(false),
-            cwd: PathBuf::from(toml_config.cwd.unwrap())
+            cwd: PathBuf::from(toml_config.cwd.unwrap()),
         })
     }
 }

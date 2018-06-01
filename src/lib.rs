@@ -28,7 +28,7 @@ extern crate toml;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::fs::File;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub mod commands;
 pub mod config;
@@ -36,7 +36,7 @@ mod git;
 pub mod pipeline;
 pub mod wordpress;
 
-use config::{validate_configuration, TomlConfig, RuntimeConfig};
+use config::{validate_configuration, RuntimeConfig, TomlConfig};
 
 /// Get the application clap config.
 fn get_app_init_config() -> ArgMatches<'static> {
@@ -85,40 +85,14 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<RuntimeConfig, String>
     let verbose: bool = init_config.is_present("verbosity");
     let dry_run: bool = init_config.is_present("dryrun");
     let config_file: &str = init_config.value_of("config").unwrap();
+    let cfg_path = PathBuf::from(config_file);
 
-    let cfg_path = Path::new(config_file);
-
-    if !cfg_path.is_absolute() {
-        return Err("Configuration file must be given as an absolute path".to_string());
-    }
-
-    if !cfg_path.exists() {
-        return Err(
-            "Invalid configuration, please validate the configuration file exists".to_string(),
-        );
-    }
-
-    let config_cwd: &str = match cfg_path.parent().unwrap().to_str() {
-        Some(s) => s,
-        None => {
-            return Err(
-                "Invalid configuration location given, please validate your config is in an \
-                 accessable location"
-                    .to_string(),
-            );
+    let mut toml_configuration: TomlConfig = match TomlConfig::load_from_file(cfg_path) {
+        Ok(c) => c,
+        Err(e) => {
+            return Err(e.to_string());
         }
     };
-
-    let mut cfg_data: String = String::new();
-
-    File::open(config_file)
-        .unwrap()
-        .read_to_string(&mut cfg_data)
-        .unwrap();
-
-    let mut toml_configuration: TomlConfig = toml::from_str(&cfg_data).unwrap();
-
-    toml_configuration.set_cwd(config_cwd.to_string());
 
     if verbose == true {
         toml_configuration.set_verbosity(true);
@@ -128,10 +102,11 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<RuntimeConfig, String>
         toml_configuration.set_dry_run(true);
     }
 
-    let result: Result<RuntimeConfig, String> = match RuntimeConfig::from_toml_config(toml_configuration) {
-        Ok(cfg) => Ok(cfg),
-        Err(estring) => Err(format!("Invalid configuration: {}", estring)),
-    };
+    let result: Result<RuntimeConfig, String> =
+        match RuntimeConfig::from_toml_config(toml_configuration) {
+            Ok(cfg) => Ok(cfg),
+            Err(estring) => Err(format!("Invalid configuration: {}", estring)),
+        };
 
     result
 }

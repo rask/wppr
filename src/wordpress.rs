@@ -56,7 +56,8 @@ impl Plugin {
 
     pub fn from_config(plugin_config: PluginConfig, config_dir: &PathBuf) -> Plugin {
         let absolute_index_path = format!(
-            "{}/{}", config_dir.to_str().unwrap(),
+            "{}/{}",
+            config_dir.to_str().unwrap(),
             plugin_config.index_path
         );
 
@@ -83,8 +84,13 @@ fn get_plugin_nicename(plugin: &Plugin) -> String {
     let path: PathBuf = plugin.index_path.to_owned();
 
     let mut nicenameparts: Vec<&str> = vec![
-        path.parent().unwrap().file_name().unwrap().to_str().unwrap(),
-        path.file_name().unwrap().to_str().unwrap()
+        path.parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap(),
+        path.file_name().unwrap().to_str().unwrap(),
     ];
 
     nicenameparts.join("/")
