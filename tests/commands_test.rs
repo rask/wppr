@@ -16,12 +16,12 @@ fn get_test_plugin_index() -> String {
         .to_string()
 }
 
-fn get_test_config() -> Config {
-    let testcfg = Config {
-        binaries: BinariesConfig {
+fn get_test_config() -> RuntimeConfig {
+    let testcfg = TomlConfig {
+        binaries: Some(BinariesConfig {
             git: "/bin/true".to_string(),
             wpcli: "/bin/true".to_string(),
-        },
+        }),
         plugins: Some(vec![
             PluginConfig {
                 index_path: get_test_plugin_index(),
@@ -34,17 +34,17 @@ fn get_test_config() -> Config {
                 package_name: "hello2/world2".to_string(),
             },
         ]),
-        git: GitConfig {
+        git: Some(GitConfig {
             user_email: "".to_string(),
             user_name: "".to_string(),
-            force_push: Some(false),
-        },
+            force_push: false,
+        }),
         verbose: Some(false),
         dry_run: Some(false),
         cwd: Some("".to_string()),
     };
 
-    testcfg
+    RuntimeConfig::from_toml_config(testcfg).unwrap()
 }
 
 #[test]

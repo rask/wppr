@@ -4,13 +4,14 @@
 
 use config::PluginConfig;
 use regex::Regex;
+use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
 
 /// Representation of a WP plugin.
 #[derive(Debug)]
 pub struct Plugin {
-    pub index_path: String,
+    pub index_path: PathBuf,
     pub package_name: String,
     pub remote_repository: String,
     pub installed_version: Option<String>,
@@ -24,9 +25,10 @@ impl Plugin {
     ///
     /// ```
     /// use wppr::wordpress;
+    /// use std::path::PathBuf;
     ///
     /// let plugin = wordpress::Plugin {
-    ///     index_path: "".to_string(),
+    ///     index_path: PathBuf::from(""),
     ///     package_name: "".to_string(),
     ///     remote_repository: "".to_string(),
     ///     installed_version: Some("1.2.3".to_string()),
@@ -34,7 +36,7 @@ impl Plugin {
     /// };
     ///
     /// let failing_plugin = wordpress::Plugin {
-    ///     index_path: "".to_string(),
+    ///     index_path: PathBuf::from(""),
     ///     package_name: "".to_string(),
     ///     remote_repository: "".to_string(),
     ///     installed_version: None,
@@ -51,20 +53,15 @@ impl Plugin {
 
         valid_version
     }
-}
 
-/// Load plugin struct data from config data.
-pub trait PluginFromConfig {
-    fn from_config(plugin_config: PluginConfig, config_dir: &str) -> Plugin;
-}
-
-/// Allows creating a plugin instance from a config.
-impl PluginFromConfig for Plugin {
-    fn from_config(plugin_config: PluginConfig, config_dir: &str) -> Plugin {
-        let absolute_index_path = format!("{}/{}", config_dir, plugin_config.index_path);
+    pub fn from_config(plugin_config: PluginConfig, config_dir: &PathBuf) -> Plugin {
+        let absolute_index_path = format!(
+            "{}/{}", config_dir.to_str().unwrap(),
+            plugin_config.index_path
+        );
 
         let mut plugin: Plugin = Plugin {
-            index_path: absolute_index_path,
+            index_path: PathBuf::from(absolute_index_path),
             package_name: plugin_config.package_name,
             remote_repository: plugin_config.remote_repository,
             installed_version: None,
@@ -83,16 +80,17 @@ impl PluginFromConfig for Plugin {
 
 /// Get the WP convention dir/file.php nicename for a plugin.
 fn get_plugin_nicename(plugin: &Plugin) -> String {
-    let path: String = plugin.index_path.to_owned();
-    let mut parts: Vec<&str> = path.split("/").collect();
+    let path: PathBuf = plugin.index_path.to_owned();
 
-    let mut nicenameparts: Vec<&str> = vec![parts.pop().unwrap(), parts.pop().unwrap()];
+    let mut nicenameparts: Vec<&str> = vec![
+        path.parent().unwrap().file_name().unwrap().to_str().unwrap(),
+        path.file_name().unwrap().to_str().unwrap()
+    ];
 
-    nicenameparts.reverse();
     nicenameparts.join("/")
 }
 
-fn get_plugin_index_file_contents(index_path: &str) -> String {
+fn get_plugin_index_file_contents(index_path: &PathBuf) -> String {
     let mut contents: String = String::new();
 
     File::open(index_path)
@@ -124,7 +122,7 @@ mod tests {
     #[test]
     fn test_plugin_nicename_can_be_fetched() {
         let plugin = Plugin {
-            index_path: "path/to/plugin/index.php".to_string(),
+            index_path: PathBuf::from("path/to/plugin/index.php"),
             remote_repository: "".to_string(),
             package_name: "".to_string(),
             installed_version: None,

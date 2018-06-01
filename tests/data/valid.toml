@@ -1,0 +1,13 @@
+[binaries]
+wpcli = "wp"
+git = "/usr/bin/my-git"
+
+[git]
+user_name = "wppr"
+user_email = "wppr@wppr.wppr"
+force_push = false
+
+[[plugins]]
+package_name = "test/package"
+index_path = "foo/bar/path.php"
+remote_repository = "../some/repository.git"

@@ -36,7 +36,7 @@ mod git;
 pub mod pipeline;
 pub mod wordpress;
 
-use config::{validate_configuration, Config};
+use config::{validate_configuration, TomlConfig, RuntimeConfig};
 
 /// Get the application clap config.
 fn get_app_init_config() -> ArgMatches<'static> {
@@ -81,7 +81,7 @@ fn get_app_init_config() -> ArgMatches<'static> {
 
 /// Get application runtime configuration which has been read from a provided
 /// TOML configuration file.
-fn get_app_run_config(init_config: &ArgMatches) -> Result<Config, String> {
+fn get_app_run_config(init_config: &ArgMatches) -> Result<RuntimeConfig, String> {
     let verbose: bool = init_config.is_present("verbosity");
     let dry_run: bool = init_config.is_present("dryrun");
     let config_file: &str = init_config.value_of("config").unwrap();
@@ -116,20 +116,20 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<Config, String> {
         .read_to_string(&mut cfg_data)
         .unwrap();
 
-    let mut configuration: Config = toml::from_str(&cfg_data).unwrap();
+    let mut toml_configuration: TomlConfig = toml::from_str(&cfg_data).unwrap();
 
-    configuration.set_cwd(config_cwd.to_string());
+    toml_configuration.set_cwd(config_cwd.to_string());
 
     if verbose == true {
-        configuration.set_verbosity(true);
+        toml_configuration.set_verbosity(true);
     }
 
     if dry_run == true {
-        configuration.set_dry_run(true);
+        toml_configuration.set_dry_run(true);
     }
 
-    let result: Result<Config, String> = match validate_configuration(&configuration) {
-        Ok(_) => Ok(configuration),
+    let result: Result<RuntimeConfig, String> = match RuntimeConfig::from_toml_config(toml_configuration) {
+        Ok(cfg) => Ok(cfg),
         Err(estring) => Err(format!("Invalid configuration: {}", estring)),
     };
 
@@ -137,12 +137,12 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<Config, String> {
 }
 
 /// Run the `list` command of this tool.
-fn run_list_command(config: Config) -> Result<bool, &'static str> {
+fn run_list_command(config: RuntimeConfig) -> Result<bool, &'static str> {
     commands::list(config)
 }
 
 /// Run the `run` command of this tool.
-fn run_run_command(config: Config) -> Result<bool, &'static str> {
+fn run_run_command(config: RuntimeConfig) -> Result<bool, &'static str> {
     commands::run(config)
 }
 
@@ -151,7 +151,7 @@ pub fn run() -> i32 {
     let app_config: ArgMatches = get_app_init_config();
     let runtime_configuration = get_app_run_config(&app_config);
 
-    let configuration: Config = match runtime_configuration {
+    let configuration: RuntimeConfig = match runtime_configuration {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{}", e);
@@ -159,7 +159,7 @@ pub fn run() -> i32 {
         }
     };
 
-    if configuration.verbose.unwrap_or(false) == true {
+    if configuration.verbose == true {
         println!("Configuration: {:?}", configuration);
     };
 

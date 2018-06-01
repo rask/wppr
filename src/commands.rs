@@ -2,20 +2,17 @@
 //!
 //! All command implementations.
 
-use config::Config;
+use config::RuntimeConfig;
 use pipeline::get_pipeline_for_plugin;
 use prettytable::Table;
-use wordpress::{Plugin, PluginFromConfig};
+use wordpress::Plugin;
 
 /// Get all plugins which are being managed.
-pub fn get_managed_plugins(config: Config) -> Vec<Plugin> {
+pub fn get_managed_plugins(config: RuntimeConfig) -> Vec<Plugin> {
     let mut plugins: Vec<Plugin> = Vec::new();
-    let cwd = config.cwd.unwrap();
+    let cwd = config.cwd;
 
-    let plugins_being_managed: Vec<_> = match config.plugins {
-        Some(p) => p,
-        None => Vec::new(),
-    };
+    let plugins_being_managed: Vec<_> = config.plugins;
 
     if plugins_being_managed.len() < 1 {
         return Vec::new();
@@ -29,7 +26,7 @@ pub fn get_managed_plugins(config: Config) -> Vec<Plugin> {
 }
 
 /// Lists managed WordPress plugins.
-pub fn list(config: Config) -> Result<bool, &'static str> {
+pub fn list(config: RuntimeConfig) -> Result<bool, &'static str> {
     println!("Listing managed plugins");
 
     let plugins: Vec<Plugin> = get_managed_plugins(config);
@@ -64,7 +61,7 @@ pub fn list(config: Config) -> Result<bool, &'static str> {
 }
 
 /// Runs upgrades and gitifications on managed WordPress plugins.
-pub fn run(config: Config) -> Result<bool, &'static str> {
+pub fn run(config: RuntimeConfig) -> Result<bool, &'static str> {
     let plugins: Vec<Plugin> = get_managed_plugins(config);
     let successes: Vec<bool> = Vec::new();
     let failures: Vec<&'static str> = Vec::new();

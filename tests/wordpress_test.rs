@@ -1,17 +1,15 @@
 extern crate wppr;
 
+use std::path::PathBuf;
 use std::env;
 use wppr::config;
-use wppr::wordpress::{get_plugin_version, Plugin, PluginFromConfig};
+use wppr::wordpress::{get_plugin_version, Plugin};
 
 #[path = "./testfns.rs"]
 mod testfns;
 
-fn get_test_plugin_index() -> String {
+fn get_test_plugin_index() -> PathBuf {
     testfns::get_tests_dir("data/plugins/test-plugin/plugin.php")
-        .to_str()
-        .unwrap()
-        .to_string()
 }
 
 #[test]
@@ -32,12 +30,12 @@ fn test_plugin_versions_can_be_read() {
 #[test]
 fn test_plugin_can_be_created_from_config() {
     let pluginconfig = config::PluginConfig {
-        index_path: get_test_plugin_index(),
+        index_path: get_test_plugin_index().to_str().unwrap().to_string(),
         package_name: "".to_string(),
         remote_repository: "".to_string(),
     };
 
-    let plugin = Plugin::from_config(pluginconfig, "");
+    let plugin = Plugin::from_config(pluginconfig, &PathBuf::from(""));
 
-    assert_eq!(plugin.index_path, format!("/{}", get_test_plugin_index()));
+    assert_eq!(plugin.index_path, get_test_plugin_index());
 }
