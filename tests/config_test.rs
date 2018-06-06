@@ -24,7 +24,7 @@ fn test_configuration_is_loaded_from_toml() {
         .read_to_string(&mut cfg_data)
         .unwrap();
 
-    let mut configuration: TomlConfig = toml::from_str(&cfg_data).unwrap();
+    let configuration: TomlConfig = toml::from_str(&cfg_data).unwrap();
 
     assert_eq!(
         configuration.binaries.unwrap().git,

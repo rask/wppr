@@ -1,0 +1,9 @@
+[[plugins]]
+index_path = "plugins/testone/testone.php"
+package_name = "vendor/testone"
+remote_repository = "remotes/testone.git"
+
+[[plugins]]
+index_path = "plugins/testtwo/testtwo.php"
+package_name = "vendor/testtwo"
+remote_repository = "remotes/testtwo.git"

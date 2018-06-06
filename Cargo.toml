@@ -13,3 +13,5 @@ prettytable-rs = "^0.6"
 
 [dev-dependencies]
 assert_cli = "^0.5"
+fs_extra = "1.1.0"
+text-diff = "^0.4"

@@ -26,9 +26,7 @@ extern crate serde_derive;
 extern crate toml;
 
 use clap::{App, Arg, ArgMatches, SubCommand};
-use std::fs::File;
-use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub mod commands;
 pub mod config;
@@ -36,7 +34,7 @@ mod git;
 pub mod pipeline;
 pub mod wordpress;
 
-use config::{validate_configuration, RuntimeConfig, TomlConfig};
+use config::{RuntimeConfig, TomlConfig};
 
 /// Get the application clap config.
 fn get_app_init_config() -> ArgMatches<'static> {
