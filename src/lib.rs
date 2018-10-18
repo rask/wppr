@@ -24,6 +24,7 @@ extern crate regex;
 #[macro_use]
 extern crate serde_derive;
 extern crate toml;
+extern crate fs_extra;
 
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::path::PathBuf;
@@ -92,21 +93,13 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<RuntimeConfig, String>
         }
     };
 
-    if verbose == true {
-        toml_configuration.set_verbosity(true);
+    toml_configuration.set_verbosity(verbose);
+    toml_configuration.set_dry_run(dry_run);
+
+    match RuntimeConfig::from_toml_config(toml_configuration) {
+        Ok(cfg) => Ok(cfg),
+        Err(estring) => Err(format!("Invalid configuration: {}", estring)),
     }
-
-    if dry_run == true {
-        toml_configuration.set_dry_run(true);
-    }
-
-    let result: Result<RuntimeConfig, String> =
-        match RuntimeConfig::from_toml_config(toml_configuration) {
-            Ok(cfg) => Ok(cfg),
-            Err(estring) => Err(format!("Invalid configuration: {}", estring)),
-        };
-
-    result
 }
 
 /// Run the `list` command of this tool.
@@ -146,12 +139,11 @@ pub fn run() -> i32 {
     };
 
     match command_result {
-        Ok(_) => {}
+        Ok(_) => 0,
         Err(e) => {
             eprintln!("{}", e);
-            return 1;
+
+            1
         }
     }
-
-    0
 }
