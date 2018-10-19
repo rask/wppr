@@ -171,7 +171,13 @@ impl Git {
         match output.status.success() {
             true => Ok(true),
             false => {
-                Err(format!("Could not add remote repository: `{}`", String::from_utf8_lossy(&output.stderr)))
+                let stderr = String::from_utf8_lossy(&output.stderr);
+
+                if stderr.contains("already exists") {
+                    Ok(true)
+                } else {
+                    Err(format!("Could not add remote repository: `{}`", stderr))
+                }
             }
         }
     }

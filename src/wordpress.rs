@@ -17,6 +17,7 @@ pub struct Plugin {
     pub remote_repository: String,
     pub installed_version: Option<String>,
     pub nicename: Option<String>,
+    pub pre_cmds: Vec<String>
 }
 
 impl Plugin {
@@ -29,11 +30,12 @@ impl Plugin {
     /// use std::path::PathBuf;
     ///
     /// let plugin = wordpress::Plugin {
-    ///     index_path: PathBuf::from(""),
+    ///     index_path: PathBuf::from("/bin/true"),
     ///     package_name: "".to_string(),
     ///     remote_repository: "".to_string(),
     ///     installed_version: Some("1.2.3".to_string()),
-    ///     nicename: None
+    ///     nicename: None,
+    ///     pre_cmds: Vec::new()
     /// };
     ///
     /// let failing_plugin = wordpress::Plugin {
@@ -41,18 +43,21 @@ impl Plugin {
     ///     package_name: "".to_string(),
     ///     remote_repository: "".to_string(),
     ///     installed_version: None,
-    ///     nicename: None
+    ///     nicename: None,
+    ///     pre_cmds: Vec::new()
     /// };
     ///
-    /// assert!(plugin.is_valid());
-    /// assert!(!failing_plugin.is_valid());
+    /// assert_eq!(true, plugin.is_valid());
+    /// assert_eq!(false, failing_plugin.is_valid());
     pub fn is_valid(&self) -> bool {
         let valid_version = match self.installed_version {
             Some(_) => true,
             None => false,
         };
 
-        valid_version
+        let valid_index = self.index_path.exists();
+
+        valid_version && valid_index
     }
 
     /// Get the nicename of this plugin, e.g. `dir/index.php`.
@@ -91,22 +96,25 @@ impl Plugin {
             remote_repository: plugin_config.remote_repository,
             installed_version: None,
             nicename: None,
+            pre_cmds: plugin_config.pre_cmds.unwrap_or(Vec::new())
         };
 
         let nicename = get_plugin_nicename(&plugin);
         let installed_version = get_plugin_version(&plugin);
 
-        plugin.nicename = Some(nicename.to_owned());
-        plugin.installed_version = Some(installed_version.to_owned());
+        plugin.nicename = Some(nicename);
+
+        plugin.installed_version = match installed_version {
+            Ok(v) => Some(v),
+            Err(_) => None
+        };
 
         plugin
     }
 
     /// Get a .git directory which is inside the plugin directory.
     pub fn get_git_dir(&self) -> Result<PathBuf, String> {
-        let mut gitdir = self.index_path.clone();
-        gitdir.pop();
-        gitdir.push(".git");
+        let gitdir = self.get_git_dir_path();
 
         if gitdir.exists() && gitdir.is_dir() {
             return Ok(gitdir);
@@ -118,11 +126,18 @@ impl Plugin {
         ));
     }
 
-    /// Get a composer.json which is inside the plugin directory.
+    /// Get the path to the plugins git directory.
+    pub fn get_git_dir_path(&self) -> PathBuf {
+        let mut gitdir = self.index_path.clone();
+        gitdir.pop();
+        gitdir.push(".git");
+
+        return gitdir;
+    }
+
+    /// Get a composer.json which exists inside the plugin directory.
     pub fn get_composerjson_file(&self) -> Result<PathBuf, String> {
-        let mut cjson = self.index_path.clone();
-        cjson.pop();
-        cjson.push("composer.json");
+        let cjson = self.get_composerjson_path();
 
         if cjson.exists() {
             return Ok(cjson);
@@ -132,6 +147,15 @@ impl Plugin {
             "Cannot fetch composer.json for plugin `{}`, does not exist",
             self.nicename.clone().unwrap_or("invalid".to_string())
         ));
+    }
+
+    /// Get the file path to the plugins composer.json file.
+    pub fn get_composerjson_path(&self) -> PathBuf {
+        let mut cjson = self.index_path.clone();
+        cjson.pop();
+        cjson.push("composer.json");
+
+        return cjson;
     }
 }
 
@@ -152,29 +176,35 @@ fn get_plugin_nicename(plugin: &Plugin) -> String {
     nicenameparts.join("/")
 }
 
-fn get_plugin_index_file_contents(index_path: &PathBuf) -> String {
+fn get_plugin_index_file_contents(index_path: &PathBuf) -> Result<String, String> {
     let mut contents: String = String::new();
+
+    if index_path.exists() == false {
+        return Err("Could not read file contents, file does not exist".to_string());
+    }
 
     File::open(index_path)
         .unwrap()
         .read_to_string(&mut contents)
         .unwrap();
 
-    contents
+    Ok(contents)
 }
 
-pub fn get_plugin_version(plugin: &Plugin) -> String {
-    let index_contents: String = get_plugin_index_file_contents(&plugin.index_path);
+pub fn get_plugin_version(plugin: &Plugin) -> Result<String, String> {
+    let index_contents: String = get_plugin_index_file_contents(&plugin.index_path)?;
 
     let version_matcher = Regex::new(r"Version:\s+(\d+\.\d+\.\d+)\s+").unwrap();
 
-    version_matcher
+    let version = version_matcher
         .captures(&index_contents)
         .unwrap()
         .get(1)
         .unwrap()
         .as_str()
-        .to_string()
+        .to_string();
+
+    Ok(version)
 }
 
 /// WpCli wrapper.
@@ -183,7 +213,7 @@ pub struct WpCli {
     working_directory: PathBuf
 }
 
-pub type WpCliResult = Result<bool, String>;
+pub type WpCliResult = Result<String, String>;
 
 impl WpCli {
     /// Get a new WpCli wrapper instance.
@@ -217,7 +247,7 @@ impl WpCli {
         let output = cmd.output().expect("Error when trying to run wp-cli command: `wp update plugin ...`");
 
         match output.status.success() {
-            true => Ok(true),
+            true => Ok(String::from_utf8_lossy(&output.stdout).to_string()),
             false => {
                 Err(format!("Could not update plugin `{}`: `{}`", pname, String::from_utf8_lossy(&output.stderr)))
             }
@@ -237,6 +267,7 @@ mod tests {
             package_name: "".to_string(),
             installed_version: None,
             nicename: None,
+            pre_cmds: Vec::new()
         };
 
         let nicename: String = get_plugin_nicename(&plugin);

@@ -11,3 +11,12 @@ force_push = false
 package_name = "test/package"
 index_path = "foo/bar/path.php"
 remote_repository = "../some/repository.git"
+
+[[plugins]]
+package_name = "test2/package2"
+index_path = "foo/bar/path2.php"
+remote_repository = "git@example.com:fooest/of-bars.git"
+pre_cmds = [
+    "echo 'hello world'",
+    "mymailcommand 'foobar'"
+]

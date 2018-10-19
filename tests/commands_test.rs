@@ -27,42 +27,13 @@ fn get_test_config() -> RuntimeConfig {
                 index_path: get_test_plugin_index(),
                 remote_repository: "/foo/bar.git".to_string(),
                 package_name: "hello/world".to_string(),
+                pre_cmds: None
             },
             PluginConfig {
                 index_path: get_test_plugin_index(),
                 remote_repository: "/qwe/asd/zxc.git".to_string(),
                 package_name: "hello2/world2".to_string(),
-            },
-        ]),
-        git: Some(GitConfig {
-            user_email: "".to_string(),
-            user_name: "".to_string(),
-            force_push: false,
-        }),
-        verbose: Some(false),
-        dry_run: Some(false),
-        cwd: Some("".to_string()),
-    };
-
-    RuntimeConfig::from_toml_config(testcfg).unwrap()
-}
-
-fn get_test_config_for_plugin_that_updates() {
-    let testcfg = TomlConfig {
-        binaries: Some(BinariesConfig {
-            git: "/bin/true".to_string(),
-            wpcli: "/bin/true".to_string(),
-        }),
-        plugins: Some(vec![
-            PluginConfig {
-                index_path: get_test_plugin_index(),
-                remote_repository: "/foo/bar.git".to_string(),
-                package_name: "hello/world".to_string(),
-            },
-            PluginConfig {
-                index_path: get_test_plugin_index(),
-                remote_repository: "/qwe/asd/zxc.git".to_string(),
-                package_name: "hello2/world2".to_string(),
+                pre_cmds: None
             },
         ]),
         git: Some(GitConfig {
@@ -98,6 +69,6 @@ fn test_plugins_can_be_updated_with_pipelines() {
     for plugin in plugins {
         let pipeline = Pipeline::new(&get_test_config(), &plugin, &PathBuf::from("/tmp/wpprtmp"));
 
-        let result = pipeline.run();
+        assert!(pipeline.is_ok());
     }
 }

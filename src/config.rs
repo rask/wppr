@@ -41,6 +41,7 @@ pub struct PluginConfig {
     pub index_path: String,
     pub package_name: String,
     pub remote_repository: String,
+    pub pre_cmds: Option<Vec<String>>,
 }
 //LCOV_EXCL_STOP
 
@@ -160,6 +161,7 @@ mod tests {
                     index_path: "".to_string(),
                     remote_repository: "".to_string(),
                     package_name: "".to_string(),
+                    pre_cmds: None
                 },
             ]),
             git: Some(GitConfig {
@@ -186,6 +188,7 @@ mod tests {
                     index_path: "".to_string(),
                     remote_repository: "".to_string(),
                     package_name: "".to_string(),
+                    pre_cmds: None
                 },
             ]),
             git: Some(GitConfig {

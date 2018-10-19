@@ -69,11 +69,13 @@ fn test_configuration_is_flattened_to_runtime_config() {
                 package_name: "hello/world-package".to_string(),
                 index_path: "pkgs/hello/world.php".to_string(),
                 remote_repository: "../hello-world.git".to_string(),
+                pre_cmds: Some(Vec::new())
             },
             PluginConfig {
                 package_name: "foo/bar-package".to_string(),
                 index_path: "pkgs/foo/bar.php".to_string(),
                 remote_repository: "../bar.git".to_string(),
+                pre_cmds: Some(Vec::new())
             },
         ]),
         verbose: Some(false),

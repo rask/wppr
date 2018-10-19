@@ -49,7 +49,7 @@ fn maybe_create_backups_directory(config: &RuntimeConfig) -> Result<PathBuf, &'s
 }
 
 /// Lists managed WordPress plugins.
-pub fn list(config: RuntimeConfig) -> Result<bool, &'static str> {
+pub fn list(config: RuntimeConfig) -> Result<bool, String> {
     println!("Listing managed plugins");
 
     let plugins: Vec<Plugin> = get_managed_plugins(&config);
@@ -84,7 +84,7 @@ pub fn list(config: RuntimeConfig) -> Result<bool, &'static str> {
 }
 
 /// Runs upgrades and gitifications on managed WordPress plugins.
-pub fn run(config: RuntimeConfig) -> Result<bool, &'static str> {
+pub fn run(config: RuntimeConfig) -> Result<bool, String> {
     let plugins: Vec<Plugin> = get_managed_plugins(&config);
     let successes: Vec<bool> = Vec::new();
     let failures: Vec<&'static str> = Vec::new();
@@ -115,7 +115,7 @@ pub fn run(config: RuntimeConfig) -> Result<bool, &'static str> {
             continue;
         }
 
-        let mut pipeline = Pipeline::new(&config, &plugin, &backup_dir);
+        let mut pipeline = Pipeline::new(&config, &plugin, &backup_dir)?;
 
         let result = pipeline.run();
 

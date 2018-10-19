@@ -103,12 +103,12 @@ fn get_app_run_config(init_config: &ArgMatches) -> Result<RuntimeConfig, String>
 }
 
 /// Run the `list` command of this tool.
-fn run_list_command(config: RuntimeConfig) -> Result<bool, &'static str> {
+fn run_list_command(config: RuntimeConfig) -> Result<bool, String> {
     commands::list(config)
 }
 
 /// Run the `run` command of this tool.
-fn run_run_command(config: RuntimeConfig) -> Result<bool, &'static str> {
+fn run_run_command(config: RuntimeConfig) -> Result<bool, String> {
     commands::run(config)
 }
 

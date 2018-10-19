@@ -20,9 +20,10 @@ fn test_plugin_versions_can_be_read() {
         remote_repository: "".to_string(),
         installed_version: None,
         nicename: None,
+        pre_cmds: Vec::new()
     };
 
-    let version = get_plugin_version(&plugin);
+    let version = get_plugin_version(&plugin).ok().unwrap();
 
     assert_eq!("0.1.2", version);
 }
@@ -33,6 +34,7 @@ fn test_plugin_can_be_created_from_config() {
         index_path: get_test_plugin_index().to_str().unwrap().to_string(),
         package_name: "".to_string(),
         remote_repository: "".to_string(),
+        pre_cmds: None
     };
 
     let plugin = Plugin::from_config(pluginconfig, &PathBuf::from(""));
