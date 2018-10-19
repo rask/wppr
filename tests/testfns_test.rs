@@ -17,8 +17,6 @@ fn test_dummy_project_can_be_setup() {
 
     assert_eq!(actualdest, proj_dest);
 
-    assert_eq!(false, proj_dest.exists());
-
     setup_test_dummy_project();
 
     assert!(proj_dest.exists());
@@ -45,14 +43,21 @@ fn test_dummy_project_can_be_updated() {
     );
 
     let proj_dest: PathBuf = get_tests_dir("data/testproj");
+    let mut proj_dest_index = proj_dest.clone();
+    proj_dest_index.push("plugins");
+    proj_dest_index.push("testone");
+    proj_dest_index.push("testone.php");
 
     assert_eq!(actualdest, proj_dest);
 
     setup_test_dummy_project();
 
+    assert!(proj_dest_index.exists());
+    assert_eq!(false, proj_dest_index.is_dir(), "{:?} is actually a directory", proj_dest_index);
+
     let mut contents: String = String::new();
 
-    File::open(proj_dest.join("plugins/testone/testone.php"))
+    File::open(&proj_dest_index)
         .unwrap()
         .read_to_string(&mut contents)
         .unwrap();
@@ -61,7 +66,7 @@ fn test_dummy_project_can_be_updated() {
 
     update_test_dummy_project();
 
-    File::open(proj_dest.join("plugins/testone/testone.php"))
+    File::open(&proj_dest_index)
         .unwrap()
         .read_to_string(&mut contents)
         .unwrap();
