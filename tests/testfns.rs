@@ -58,18 +58,25 @@ pub fn update_test_dummy_project() {
         panic!("Cannot update test project, destination `{:?}` missing", proj_dest);
     }
 
-    let status = process::Command::new("cp")
-            .current_dir(get_cwd())
-            .arg("-R")
-            .arg(proj_src)
-            .arg(proj_dest)
-            .spawn()
-            .unwrap()
-            .wait()
-            .unwrap();
+    let mut copts = dir::CopyOptions::new();
+    copts.overwrite = true;
+    copts.copy_inside = true;
+    copts.skip_exist = false;
 
-    if !status.success() {
-        panic!("Could not update test project");
+    let copyfrom = proj_src.to_str().unwrap();
+    let copyto = proj_dest.to_str().unwrap();
+
+    let result = dir::copy(&copyfrom, &copyto, &copts);
+
+    match result {
+        Ok(_) => (),
+        Err(e) => panic!("Could not update test project: `{}`", e)
+    };
+
+    let proj_dest_testfile: PathBuf = get_tests_dir("data/testproj/plugins/testone/additional.php");
+
+    if proj_dest_testfile.exists() == false {
+        panic!("Could not update test project!");
     }
 }
 
