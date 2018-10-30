@@ -27,6 +27,15 @@ pub struct BinariesConfig {
     pub wpcli: String,
 }
 
+impl Default for BinariesConfig {
+    fn default() -> Self {
+        BinariesConfig {
+            git: "git".to_string(),
+            wpcli: "wp".to_string()
+        }
+    }
+}
+
 /// Configuration for Git when running the tool.
 #[derive(Debug, Deserialize, Clone)]
 pub struct GitConfig {
@@ -94,7 +103,8 @@ impl TomlConfig {
 
 /// Validate configuration for the tool.
 pub fn validate_configuration(config: &TomlConfig) -> Result<bool, &'static str> {
-    let bins: BinariesConfig = config.clone().binaries.unwrap();
+    let bins: BinariesConfig = config.clone().binaries.unwrap_or(BinariesConfig::default());
+
     let git_is_valid = validate_binary(&bins.git);
     let wp_cli_is_valid = validate_binary(&bins.wpcli);
 
@@ -136,7 +146,7 @@ impl RuntimeConfig {
         validate_configuration(&toml_config)?;
 
         Ok(RuntimeConfig {
-            binaries: toml_config.binaries.unwrap(),
+            binaries: toml_config.binaries.unwrap_or(BinariesConfig::default()),
             git: toml_config.git.unwrap(),
             plugins: toml_config.plugins.unwrap_or(Vec::new()),
             verbose: toml_config.verbose.unwrap_or(false),

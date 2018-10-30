@@ -151,12 +151,12 @@ name your configuration files `wppr.toml`.
     ]
 
     [[plugins]]
-    index_file = "wp-content/plugins/my-plugin/my-plugin.php"
+    index_path = "wp-content/plugins/my-plugin/my-plugin.php"
     package_name = "mycompany/myplugin"
     remote_repository = "git@github.com:mycompany/myplugin-mirror.git"
 
     [[plugins]]
-    index_file = "wp-content/plugins/advanced-custom-fields-pro/acf.php"
+    index_path = "wp-content/plugins/advanced-custom-fields-pro/acf.php"
     package_name = "mycompany/acf-pro"
     remote_repository = "git@git.mycompany.com:/opt/repositories/acfpro-mirror.git"
 
@@ -169,11 +169,13 @@ operations with the tool.
 
 ##### `git`
 
-Which Git executable to use. Can be a `$PATH` accessible binary.
+Which Git executable to use. Can be a `$PATH` accessible binary. Defaults to
+`git`.
 
 ##### `wpcli`
 
-Which WP-CLI executable to use. Can be a `$PATH` accessible binary.
+Which WP-CLI executable to use. Can be a `$PATH` accessible binary. Defaults to
+`wp`.
 
 #### `git`
 
