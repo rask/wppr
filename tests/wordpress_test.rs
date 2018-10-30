@@ -1,7 +1,6 @@
 extern crate wppr;
 
 use std::path::PathBuf;
-use std::env;
 use wppr::config;
 use wppr::wordpress::{get_plugin_version, Plugin};
 

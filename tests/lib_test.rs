@@ -1,7 +1,6 @@
 extern crate assert_cli;
 extern crate wppr;
 
-use std::env;
 use std::path::PathBuf;
 
 #[path = "./testfns.rs"]

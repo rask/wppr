@@ -4,7 +4,8 @@
 
 extern crate fs_extra;
 
-use std::{io, process, env, fs, path::PathBuf};
+use std::{process, env, path::PathBuf};
+
 use self::fs_extra::dir;
 
 /// Get the working directory where tests have been run from.

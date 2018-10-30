@@ -9,7 +9,7 @@ use testfns::*;
 
 #[test]
 fn test_dummy_project_can_be_setup() {
-    return ();
+    return (); // FIXME the test is shaky and fails from time to time
 
     let actualdest: PathBuf = PathBuf::from(
         env::current_dir().unwrap().to_str().unwrap().to_string() + "/tests/data/testproj"
@@ -40,7 +40,7 @@ fn test_dummy_project_can_be_setup() {
 
 #[test]
 fn test_dummy_project_can_be_updated() {
-    return ();
+    return (); // FIXME the test is shaky and fails from time to time
 
     let actualdest: PathBuf = PathBuf::from(
         env::current_dir().unwrap().to_str().unwrap().to_string() + "/tests/data/testproj"
@@ -85,7 +85,7 @@ fn test_dummy_project_can_be_updated() {
 
 #[test]
 fn test_dummy_project_can_be_discarded() {
-    return ();
+    return (); // FIXME the test is shaky and fails from time to time
 
     let actualdest: PathBuf = PathBuf::from(
         env::current_dir().unwrap().to_str().unwrap().to_string() + "/tests/data/testproj"

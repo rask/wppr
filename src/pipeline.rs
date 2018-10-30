@@ -6,7 +6,7 @@
 use fs_extra;
 
 use std::{
-    fs::{write, remove_dir_all},
+    fs::write,
     path::PathBuf
 };
 

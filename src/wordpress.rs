@@ -2,12 +2,16 @@
 //!
 //! This module contains WordPress specific functionalities.
 
-use config::PluginConfig;
 use regex::Regex;
-use std::process::Command;
-use std::path::{PathBuf, Component};
-use std::fs::File;
-use std::io::Read;
+
+use std::{
+    process::Command,
+    path::PathBuf,
+    fs::File,
+    io::Read
+};
+
+use config::PluginConfig;
 
 /// Representation of a WP plugin.
 #[derive(Debug, Clone)]
@@ -163,7 +167,7 @@ impl Plugin {
 fn get_plugin_nicename(plugin: &Plugin) -> String {
     let path: PathBuf = plugin.index_path.to_owned();
 
-    let mut nicenameparts: Vec<&str> = vec![
+    let nicenameparts: Vec<&str> = vec![
         path.parent()
             .unwrap()
             .file_name()

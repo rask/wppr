@@ -3,7 +3,7 @@
 //! Configuration related functionalities.
 
 use toml;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use std::io::Read;
 use std::fs::File;
 use std::process::{Command, Stdio};

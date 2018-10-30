@@ -86,8 +86,6 @@ pub fn list(config: RuntimeConfig) -> Result<bool, String> {
 /// Runs upgrades and gitifications on managed WordPress plugins.
 pub fn run(config: RuntimeConfig) -> Result<bool, String> {
     let plugins: Vec<Plugin> = get_managed_plugins(&config);
-    let successes: Vec<bool> = Vec::new();
-    let failures: Vec<&'static str> = Vec::new();
 
     if plugins.len() < 1 {
         println!("Configuration has no plugins defined");
